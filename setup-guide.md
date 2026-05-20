@@ -2,7 +2,8 @@
 
 A conversation-driven video editing studio: drop in raw footage, ask Claude to
 edit it, and get back a finished cut with motion graphics. This guide covers a
-fresh setup on a new machine and day-to-day usage.
+fresh setup on a new machine and day-to-day usage. For an overview of the
+project, see [`README.md`](README.md).
 
 ---
 
@@ -33,7 +34,7 @@ All verified present on this machine; install only what's missing.
 | Node.js 22+ | HyperFrames render engine | `brew install node` |
 | Python 3.10+ + uv | video-use helpers | `brew install uv` |
 | yt-dlp | Pull sources from URLs (optional) | `brew install yt-dlp` |
-| ElevenLabs API key | Scribe transcription (required) | https://elevenlabs.io/app/settings/api-keys |
+| ElevenLabs API key | Scribe transcription (required) | See §5 below |
 
 ---
 
@@ -59,8 +60,8 @@ for d in ~/Developer/hyperframes/skills/*/; do
   ln -sfn "$d" ~/.claude/skills/"$n"
 done
 
-# 4. Add the ElevenLabs API key
-printf 'ELEVENLABS_API_KEY=%s\n' "YOUR_KEY_HERE" > ~/Developer/video-use/.env
+# 4. Add the ElevenLabs API key (see §5 for how to create the key)
+printf 'ELEVENLABS_API_KEY=%s\n' 'YOUR_KEY_HERE' > ~/Developer/video-use/.env
 chmod 600 ~/Developer/video-use/.env
 ```
 
@@ -83,9 +84,43 @@ Helpers: `transcribe.py`, `transcribe_batch.py`, `pack_transcripts.py`,
 
 ---
 
-## 5. Daily usage
+## 5. ElevenLabs API key
 
-1. Drop raw file(s) into a subfolder of this directory (e.g. `raw-files/`).
+Transcription runs on ElevenLabs **Scribe**. Without a key, nothing transcribes.
+
+### Creating the key
+
+At <https://elevenlabs.io/app/settings/api-keys> → **Create API Key**:
+
+| Setting | Value |
+|---------|-------|
+| **Restrict Key** | ON |
+| **Speech to Text** | **Access** ✅ — the only endpoint this studio needs |
+| All other endpoints (TTS, Speech to Speech, Dubbing, Voices, Projects, History, …) | **No Access** |
+| **Monthly limit** | Set a credit cap rather than Unlimited — limits blast radius if the key leaks |
+
+> If you later use the `hyperframes-media` skill for AI **voiceover/narration**,
+> also grant **Text to Speech → Access**. Not needed for editing/transcription.
+
+### Storing the key — security
+
+Never paste the key into a chat or commit it. Write it to the `.env` file
+yourself, from your own terminal:
+
+```bash
+printf 'ELEVENLABS_API_KEY=%s\n' 'sk_your_key_here' > ~/Developer/video-use/.env
+chmod 600 ~/Developer/video-use/.env
+```
+
+`.env` is git-ignored and lives outside this repo. Claude verifies the key with
+a quota-free `GET /v1/user` call (expects HTTP `200`) without ever reading the
+value.
+
+---
+
+## 6. Daily usage
+
+1. Drop raw file(s) into `raw-files/` (or any subfolder of this directory).
 2. Start Claude here and say what you want:
    - *"inventory these takes and propose an edit strategy"*
    - *"cut three 30–60s shorts from the best moments"*
@@ -100,15 +135,20 @@ composited by `render.py` (subtitles are always applied last).
 
 ---
 
-## 6. Repo conventions
+## 7. Repo conventions
 
-This directory is a git repo. `.gitignore` excludes raw media (`*.webm`,
-`*.mp4`, `*.mov`, `*.mkv`), all `edit/` output folders, and `.env`. Commit docs,
-config, and project notes — never the footage or rendered output.
+This directory is a git repo. `.gitignore` excludes:
+
+- `raw-files/` — all raw footage
+- `edit/` (anywhere) — transcripts, EDLs, renders, previews
+- media files (`*.webm/.mp4/.mov/.mkv/.mp3/.wav`)
+- `.env` and `.DS_Store`
+
+Commit docs, config, and project notes — never footage or rendered output.
 
 ---
 
-## 7. Keeping toolkits current
+## 8. Keeping toolkits current
 
 ```bash
 cd ~/Developer/video-use  && git pull --ff-only   # re-run uv pip install if deps changed

@@ -1,8 +1,20 @@
+# Raw footage — never committed (large binaries, source material)
+raw-files/
+
+# Editing outputs (transcripts, EDLs, renders, previews)
 edit/
 **/edit/
+
+# Media files anywhere
 *.webm
 *.mp4
 *.mov
 *.mkv
-.DS_Store
+*.mp3
+*.wav
+
+# Secrets
 .env
+
+# OS cruft
+.DS_Store
