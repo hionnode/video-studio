@@ -1,24 +1,37 @@
 # Video Editing Studio
 
-This directory is a conversation-driven video editing studio. Drop raw footage
-into a subfolder, then ask Claude to edit it — cut, grade, subtitle, add motion
-graphics, render.
+Conversation-driven video editing studio. Drop raw footage into a project
+folder, describe the edit, and Claude runs the pipeline: cut, grade, subtitle,
+add motion graphics, render.
 
-## Installed pipeline
+**Read [`architecture.md`](architecture.md) for the full system design and the
+standard operating procedure — follow it for every project.**
 
-Two open-source toolkits are installed as Claude Code skills (in `~/.claude/skills/`):
+## System at a glance
 
-| Skill | Repo | Role |
-|-------|------|------|
-| `video-use` | browser-use/video-use → `~/Developer/video-use` | Editing pipeline: transcribe → cut fillers/shorts → color grade → subtitles → render |
-| `hyperframes` (+ `gsap`, `lottie`, `three`, `animejs`, `waapi`, `css-animations`, `tailwind`, `typegpu`, `hyperframes-cli`, `hyperframes-media`, `hyperframes-registry`, `website-to-hyperframes`, `remotion-to-hyperframes`) | heygen-com/hyperframes → `~/Developer/hyperframes` | Motion graphics: HTML/CSS/GSAP compositions rendered to MP4/WebM overlays |
+10-stage pipeline: **Ingest → Inventory → Transcribe → Pack → Strategy
+(user approval gate) → EDL → Animate → Render → Self-eval → Deliver.**
 
-Both are git clones; `cd` into the repo and `git pull --ff-only` to update.
+Two toolkits, installed as Claude Code skills:
+
+| Skill | Repo → clone | Role |
+|-------|--------------|------|
+| `video-use` | browser-use/video-use → `~/Developer/video-use` | Editing pipeline: transcribe, cut, grade, subtitle, render |
+| `hyperframes` (+ `gsap`, `lottie`, `three`, `animejs`, `waapi`, `css-animations`, `tailwind`, `typegpu`, `hyperframes-cli/-media/-registry`, `website-to-hyperframes`, `remotion-to-hyperframes`) | heygen-com/hyperframes → `~/Developer/hyperframes` | Motion graphics overlays |
+
+The `video-use` skill (`~/.claude/skills/video-use/SKILL.md`) carries the
+detailed editing methodology. Invoke it when starting any edit.
+
+## Conventions
+
+- **One folder per project** under `raw-files/<project>/`. Raw footage is never modified.
+- **All outputs** go in `raw-files/<project>/edit/` — never the repo root.
+- **Session memory** persists in each project's `edit/project.md`.
+- Raw media, `edit/`, and `.env` are git-ignored. Only docs are committed.
 
 ## Running video-use helpers
 
-The video-use Python deps live in a venv. **Always invoke helpers with the venv
-interpreter**, not the system `python`:
+Always use the venv interpreter — system `python` lacks the deps:
 
 ```bash
 ~/Developer/video-use/.venv/bin/python ~/.claude/skills/video-use/helpers/<name>.py ...
@@ -27,22 +40,18 @@ interpreter**, not the system `python`:
 Helpers: `transcribe.py`, `transcribe_batch.py`, `pack_transcripts.py`,
 `timeline_view.py`, `render.py`, `grade.py`.
 
-## Workflow (per the video-use skill)
+## Hard rules (never violate)
 
-1. Drop raw file(s) into a subfolder of this directory.
-2. Ask: *"edit these into a launch video"* / *"cut a short from this"* /
-   *"inventory these takes and propose a strategy."*
-3. Claude inspects footage, transcribes, proposes a plan in plain language, and
-   **waits for confirmation** before editing.
-4. All outputs land in `<subfolder>/edit/` — sources and this directory stay clean.
-5. Session memory persists in `<subfolder>/edit/project.md`.
+Subtitles applied LAST · per-segment extract + lossless concat · 30ms audio
+fades at boundaries · word-boundary cuts only · cache transcripts · parallel
+animation sub-agents · **confirm strategy before executing**. Full list in
+`architecture.md` §5.
 
-Motion graphics are built via the `hyperframes` skill as overlay clips, composited
-by `render.py` (subtitles applied last).
+## Requirements
 
-## Requirements (all verified present)
-
-- ffmpeg + ffprobe (8.0) ✓
-- Node.js 24 / bun (for HyperFrames) ✓
-- yt-dlp (for URL sources) ✓
-- `ELEVENLABS_API_KEY` in `/Users/chinmay/code/video/.env` (project root) — **required for transcription**. Helpers resolve the key from `~/Developer/video-use/.env`, then `./.env`, then the env var.
+- ffmpeg + ffprobe 8 ✓ · Node 22+ / bun ✓ · Python + uv ✓ · yt-dlp ✓
+- `ELEVENLABS_API_KEY` in `/Users/chinmay/code/video/.env` (project root).
+  Key resolution: `~/Developer/video-use/.env` → `./.env` → env var.
+- **Transcription needs a *paid* ElevenLabs plan** — the Free Tier is disabled
+  on newly-created accounts by the abuse detector. Any paid plan (Starter
+  ~$5/mo) works; usage here is well within limits.
