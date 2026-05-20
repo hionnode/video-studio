@@ -45,4 +45,4 @@ by `render.py` (subtitles applied last).
 - ffmpeg + ffprobe (8.0) ✓
 - Node.js 24 / bun (for HyperFrames) ✓
 - yt-dlp (for URL sources) ✓
-- `ELEVENLABS_API_KEY` in `~/Developer/video-use/.env` — **required for transcription**
+- `ELEVENLABS_API_KEY` in `/Users/chinmay/code/video/.env` (project root) — **required for transcription**. Helpers resolve the key from `~/Developer/video-use/.env`, then `./.env`, then the env var.

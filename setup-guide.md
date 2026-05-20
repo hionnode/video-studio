@@ -61,8 +61,8 @@ for d in ~/Developer/hyperframes/skills/*/; do
 done
 
 # 4. Add the ElevenLabs API key (see §5 for how to create the key)
-printf 'ELEVENLABS_API_KEY=%s\n' 'YOUR_KEY_HERE' > ~/Developer/video-use/.env
-chmod 600 ~/Developer/video-use/.env
+printf 'ELEVENLABS_API_KEY=%s\n' 'YOUR_KEY_HERE' > /Users/chinmay/code/video/.env
+chmod 600 /Users/chinmay/code/video/.env
 ```
 
 > Symlink the **whole** video-use repo (not just `SKILL.md`) — its `helpers/`
@@ -104,17 +104,21 @@ At <https://elevenlabs.io/app/settings/api-keys> → **Create API Key**:
 
 ### Storing the key — security
 
-Never paste the key into a chat or commit it. Write it to the `.env` file
-yourself, from your own terminal:
+Never paste the key into a chat or commit it. Write it to a `.env` file
+yourself, from your own terminal. Put it in **this project root** — the
+video-use helpers check `./.env` (current working directory) in addition to the
+toolkit repo, so a project-local key keeps it scoped to this studio:
 
 ```bash
-printf 'ELEVENLABS_API_KEY=%s\n' 'sk_your_key_here' > ~/Developer/video-use/.env
-chmod 600 ~/Developer/video-use/.env
+printf 'ELEVENLABS_API_KEY=%s\n' 'sk_your_key_here' > /Users/chinmay/code/video/.env
+chmod 600 /Users/chinmay/code/video/.env
 ```
 
-`.env` is git-ignored and lives outside this repo. Claude verifies the key with
-a quota-free `GET /v1/user` call (expects HTTP `200`) without ever reading the
-value.
+`.env` is git-ignored. Claude verifies the key with a quota-free `GET /v1/user`
+call (expects HTTP `200`) without ever reading the value.
+
+> Key resolution order (`helpers/transcribe.py`): `~/Developer/video-use/.env`
+> → `./.env` (project root) → `ELEVENLABS_API_KEY` env var.
 
 ---
 
