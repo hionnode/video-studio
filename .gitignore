@@ -1,0 +1,8 @@
+edit/
+**/edit/
+*.webm
+*.mp4
+*.mov
+*.mkv
+.DS_Store
+.env
