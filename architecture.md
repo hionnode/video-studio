@@ -135,7 +135,7 @@ For any new project:
 
 | Project | Source | Duration | Status |
 |---------|--------|----------|--------|
-| `dossier/andaman` | Great Nicobar Project (Hindi doc, 4K AV1, Opus stereo) | 27.6 min | In production — transcribed, EDL locked (~16-min master), translation + 4 motion graphics rendering. See its `edit/project.md`. |
+| `dossier/andaman` | Great Nicobar Project (Hindi doc, 4K AV1, Opus stereo) | 27.6 min | Master delivered (`edit/master.mp4`, 15:52, English subs + 4 map overlays); 4 vertical shorts in progress. See its `edit/project.md`. |
 
 > **ElevenLabs account note:** transcription requires a *paid* ElevenLabs plan.
 > The Free Tier is disabled on freshly-created accounts by the abuse detector
